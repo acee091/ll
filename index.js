@@ -3,7 +3,7 @@ const express = require("express")
 const port = 3000
 const app = express()
 const path = require("path")
-
+const user= require('./user')
 var checkAuth = function(req, res, next){
     // verificar se o usuario esta logado
     req.authStatus = true
@@ -15,11 +15,13 @@ var checkAuth = function(req, res, next){
         console.log('Não está logado, faça o login para continuar')
     }
 }
+
+app.use('/user', user)
 app.use(checkAuth)
 
 // NOME DO DIRETORIO, TEMPLATES
 const basePath = path.join(__dirname, 'Templates')
-// obtem uma requisição e manda uma resposta
+
 
 // le o  conteudo de uma html
 app.use(
@@ -29,29 +31,15 @@ app.use(
 )
 
 app.use(express.json())
-
-app.get('/user/add', (req, res)=>{
-    res.sendFile(`${basePath}/userform.html`)
-    // chamando o html
-})
-
-app.post('/user/save', (req, res)=>{
-    console.log(req.body)
-    const name = req.body.name
-    const age = req.body.age
-    console.log(name)
-    console.log(age)
-})
-
-app.get('/user/:id', (req, res) =>{
-    console.log(`Carregando usuário:${req.params.id}`)
-    
-    res.sendFile(`${basePath}/user.html`)
-})
-
+// arquivos estaticos: estilizar e adicionar interatividade
+app.use(express.static('public'))
 
 app.get('/', (req, res) =>{
     res.sendFile(`${basePath}/index.html`)
+})
+
+app.use(function(req, res, next){
+    res.status(404).sendFile(`${basePath}/404.html`)
 })
 app.listen(port, ()=>{
     console.log(`App rodando na porta: ${port}`)
